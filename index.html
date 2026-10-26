@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script>
+/* =========================================================
+   ★ ここだけ書き換えればサイト全体が変わります ★
+   ========================================================= */
+const CONFIG = {
+  companyName:   "株式会社バットゲイ",      // 社名（日本語）
+  companyNameEn: "BatGei.",             // 社名（英語）
+  catchCopy:     "ぼくらが、学校の平和を守る",  // キャッチコピー
+  subCopy:       "", // キャッチコピーの下の小さい文（空欄なら表示されません）
+  founded:       "2026年10月26日",              // 設立日
+  area:          "",   // 活動エリア（空欄なら表示されません）
+
+  // 会社説明（4行。空欄のままでもOK）
+  about: [
+    "",   // 1行目
+    "",   // 2行目
+    "",   // 3行目
+    ""    // 4行目
+  ],
+
+  // お知らせ（上が新しい。増やすときは { date: "", text: "" }, を1行コピー）
+  news: [
+    { date: "2026.10.26", text: "会社を設立しました。" },
+    { date: "2026.10.26", text: "公式ホームページを公開しました。" }
+  ],
+
+  // 特有単語（空欄のままでもOK。入れると用語ページに表示されます）
+  term: {
+    word:    "ヒゲイシャ",   // 単語
+    reading: "ヒゲイシャ",   // 読み方
+    meaning: "ゲイの被害を受けている人のこと",   // 意味
+    example: "あなたはヒゲイシャですか？"    // 使い方の例
+  },
+
+  // 役員（photo に画像ファイル名を入れると写真が表示されます 例: "sezaki.jpg"）
+  officers: [
+    { role: "代表取締役",       roleEn: "CEO", name: "瀬崎 瑶太", nameEn: "YOTA SEZAKI", photo: "", message: "" },
+    { role: "代表取締役副社長", roleEn: "COO", name: "佐藤 瑛太", nameEn: "EITA SATO",   photo: "", message: "" }
+  ]
+};
+</script>
+
+<style>
+:root{
+  --bg:#070914; --bg2:#0d1124; --card:#111630; --cyan:#00e5ff; --pink:#ff3fd2;
+  --text:#eef3ff; --muted:#8a94b8; --line:rgba(255,255,255,.08); --line2:rgba(0,229,255,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:"Zen Kaku Gothic New",sans-serif;line-height:1.8;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+#bgCanvas{position:fixed;inset:0;z-index:0;opacity:.45;pointer-events:none}
+
+/* ===== header ===== */
+header{
+  position:sticky;top:0;z-index:40;height:68px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 32px;
+  background:rgba(7,9,20,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+}
+.logo{display:flex;align-items:center;gap:12px;cursor:pointer}
+.logo-mark{width:30px;height:30px;border:2px solid var(--cyan);transform:rotate(45deg);display:grid;place-items:center}
+.logo-mark span{transform:rotate(-45deg);font-family:Orbitron;font-weight:900;font-size:12px;color:var(--cyan)}
+.logo-text{font-family:Orbitron;font-weight:700;letter-spacing:.1em;font-size:15px}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.05em;display:block;line-height:1}
+.hnav{display:flex;gap:28px;font-size:14px}
+.hnav a{cursor:pointer;color:var(--muted);transition:.2s;position:relative;padding:4px 0}
+.hnav a:hover,.hnav a.active{color:var(--text)}
+.hnav a.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--cyan)}
+
+/* ===== layout ===== */
+main{position:relative;z-index:10}
+.page{display:none;animation:fade .5s ease}
+.page.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+section.block{padding:90px 0}
+.eyebrow{font-family:Orbitron;font-size:12px;letter-spacing:.3em;color:var(--cyan)}
+.h2{font-size:clamp(26px,3.6vw,38px);font-weight:900;margin:6px 0 36px;line-height:1.4}
+
+/* ===== hero ===== */
+.hero{min-height:calc(100vh - 68px);display:flex;align-items:center;position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;right:-10%;top:10%;width:620px;height:620px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,229,255,.22),transparent 65%);filter:blur(20px);
+}
+.hero::after{
+  content:"";position:absolute;right:8%;bottom:12%;width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,63,210,.18),transparent 65%);filter:blur(20px);
+}
+.hero .wrap{position:relative;z-index:2;width:100%}
+.hero h1{font-size:clamp(36px,6.4vw,80px);font-weight:900;line-height:1.25;letter-spacing:.02em}
+.hero .catch{font-size:clamp(20px,2.8vw,32px);font-weight:700;margin-top:18px;color:var(--cyan);min-height:1.5em}
+.hero .typing::after{content:"";display:inline-block;width:4px;height:.9em;background:var(--cyan);margin-left:6px;vertical-align:-.08em;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+.hero p{color:var(--muted);font-size:clamp(15px,1.6vw,18px);margin-top:22px}
+.hero .en{font-family:Orbitron;letter-spacing:.35em;font-size:13px;color:var(--cyan);margin-bottom:20px}
+.btns{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap}
+.btn{padding:14px 30px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid var(--cyan);transition:.25s;border-radius:2px}
+.btn.primary{background:var(--cyan);color:#000}
+.btn.primary:hover{background:#fff;border-color:#fff}
+.btn.ghost{color:var(--text)}
+.btn.ghost:hover{background:rgba(0,229,255,.1)}
+.scroll{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);font-family:Orbitron;font-size:10px;letter-spacing:.3em;color:var(--muted);z-index:2;text-align:center}
+.scroll::after{content:"";display:block;width:1px;height:40px;background:var(--cyan);margin:10px auto 0;animation:drop 1.8s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ===== news ===== */
+.news{border-top:1px solid var(--line)}
+.news li{list-style:none;display:flex;gap:28px;padding:20px 4px;border-bottom:1px solid var(--line);align-items:center}
+.news .date{font-family:Orbitron;font-size:13px;color:var(--muted);min-width:100px}
+.news .tag{font-size:11px;padding:2px 10px;border:1px solid var(--line2);color:var(--cyan)}
+
+/* ===== menu cards ===== */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{
+  background:var(--card);border:1px solid var(--line);padding:34px 28px 30px;cursor:pointer;
+  transition:.3s;position:relative;overflow:hidden;
+}
+.card::before{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink));transition:.4s}
+.card:hover{transform:translateY(-4px);border-color:var(--line2)}
+.card:hover::before{width:100%}
+.card .num{font-family:Orbitron;color:var(--cyan);font-size:12px;letter-spacing:.2em}
+.card h3{font-size:21px;margin:10px 0 8px}
+.card p{color:var(--muted);font-size:14px}
+.card .arrow{margin-top:20px;font-size:13px;color:var(--cyan)}
+
+/* ===== page header ===== */
+.page-head{padding:80px 0 50px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(0,229,255,.06),transparent)}
+.crumb{font-size:12px;color:var(--muted);margin-bottom:18px}
+.crumb a{cursor:pointer}.crumb a:hover{color:var(--cyan)}
+.page-head h1{font-size:clamp(30px,4.4vw,48px);font-weight:900;line-height:1.3}
+.page-head .en{font-family:Orbitron;font-size:13px;letter-spacing:.3em;color:var(--cyan)}
+
+/* ===== about ===== */
+.about-text .line{min-height:2.6em;border-bottom:1px dashed rgba(255,255,255,.15);display:flex;align-items:center;font-size:17px}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th,.table td{padding:20px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.table th{width:200px;color:var(--muted);font-weight:500;font-size:14px}
+
+/* ===== term ===== */
+.term-hero{background:var(--card);border:1px solid var(--line);padding:60px 30px;text-align:center;margin-bottom:20px}
+.term-word{font-size:clamp(36px,7vw,72px);font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.term-word.empty{background:none;color:transparent;-webkit-text-stroke:1px var(--muted);font-family:Orbitron;font-size:clamp(26px,4vw,40px);letter-spacing:.2em}
+.term-reading{color:var(--muted);letter-spacing:.3em;margin-top:6px;min-height:1.6em}
+.term-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.term-box{background:var(--card);border:1px solid var(--line);padding:30px}
+.term-box h4{font-size:13px;color:var(--cyan);margin-bottom:10px;letter-spacing:.1em}
+.term-box p{min-height:5em}
+.placeholder{color:var(--muted)}
+
+/* ===== officers ===== */
+.officers{display:grid;grid-template-columns:repeat(2,1fr);gap:40px}
+.officer .photo{
+  aspect-ratio:4/5;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;position:relative;
+}
+.officer .photo img{width:100%;height:100%;object-fit:cover;transition:.6s}
+.officer:hover .photo img{transform:scale(1.04)}
+.officer .ph{color:var(--muted);font-family:Orbitron;font-size:12px;letter-spacing:.25em;text-align:center}
+.officer .ph svg{width:70px;height:70px;opacity:.35;margin-bottom:12px}
+.officer .info{padding-top:22px}
+.officer .role{font-size:13px;color:var(--cyan)}
+.officer .name{font-size:30px;font-weight:900;letter-spacing:.06em;line-height:1.4}
+.officer .name-en{font-family:Orbitron;font-size:12px;letter-spacing:.25em;color:var(--muted)}
+.officer .msg{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:15px;min-height:4em}
+
+/* ===== footer (黒背景・白文字) ===== */
+footer{position:relative;z-index:10;background:#000;color:#fff;margin-top:60px}
+.f-top{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:40px;padding:70px 0 50px}
+.f-brand .logo-text{font-size:17px}
+.f-brand p{color:#9a9a9a;font-size:13px;margin-top:14px;line-height:1.9}
+.f-col h4{font-size:14px;font-weight:700;margin-bottom:18px}
+.f-col a{display:block;color:#bdbdbd;font-size:14px;padding:5px 0;cursor:pointer;transition:.2s}
+.f-col a:hover{color:#fff;text-decoration:underline}
+.f-bottom{border-top:1px solid #2a2a2a;padding:24px 0 30px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px;color:#9a9a9a}
+.to-top{cursor:pointer;color:#fff;border:1px solid #444;padding:6px 14px;font-size:12px}
+.to-top:hover{background:#fff;color:#000}
+
+/* ===== reveal ===== */
+.rv{opacity:0;transform:translateY(24px);transition:.8s ease}
+.rv.in{opacity:1;transform:none}
+
+/* ===== responsive ===== */
+@media(max-width:860px){
+  header{padding:0 16px}
+  .hnav{display:none}
+  .wrap{padding:0 16px}
+  .cards{grid-template-columns:1fr}
+  .officers{grid-template-columns:1fr}
+  .term-grid{grid-template-columns:1fr}
+  .f-top{grid-template-columns:1fr 1fr}
+  .f-brand{grid-column:1/-1}
+  .table th{width:110px}
+  .news li{flex-wrap:wrap;gap:8px 16px}
+}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<header>
+  <div class="logo" data-go="home">
+    <div class="logo-mark"><span data-initial></span></div>
+    <div><span class="logo-text" data-bind="companyNameEn"></span><span class="logo-sub" data-bind="companyName"></span></div>
+  </div>
+  <nav class="hnav">
+    <a data-go="home">ホーム</a>
+    <a data-go="about">会社情報</a>
+    <a data-go="term">特有単語</a>
+    <a data-go="officers">役員紹介</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ===== HOME ===== -->
+  <div class="page" id="home">
+    <section class="hero">
+      <div class="wrap">
+        <div class="en" data-bind="companyNameEn"></div>
+        <h1 data-bind="companyName"></h1>
+        <div class="catch"><span class="typing" id="typing"></span></div>
+        <p data-bind="subCopy"></p>
+        <div class="btns">
+          <a class="btn primary" data-go="about">会社情報を見る</a>
+          <a class="btn ghost" data-go="officers">役員紹介</a>
+        </div>
+      </div>
+      <div class="scroll">SCROLL</div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <div class="rv"><div class="eyebrow">NEWS</div><h2 class="h2">お知らせ</h2></div>
+        <ul class="news rv" id="newsList"></ul>
+      </div>
+    </section>
+
+    <section class="block" style="padding-top:20px">
+      <div class="wrap">
+        <div class="rv"><div class="eyebrow">CONTENTS</div><h2 class="h2">私たちについて</h2></div>
+        <div class="cards">
+          <div class="card rv" data-go="about"><div class="num">01</div><h3>会社情報</h3><p>私たちが何者で、何を目指しているのか。</p><div class="arrow">詳しく見る →</div></div>
+          <div class="card rv" data-go="term"><div class="num">02</div><h3>特有単語</h3><p>社内で使われているオリジナルの言葉。</p><div class="arrow">詳しく見る →</div></div>
+          <div class="card rv" data-go="officers"><div class="num">03</div><h3>役員紹介</h3><p>会社を率いるメンバーを紹介します。</p><div class="arrow">詳しく見る →</div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== ABOUT ===== -->
+  <div class="page" id="about">
+    <div class="page-head"><div class="wrap">
+      <div class="crumb"><a data-go="home">ホーム</a> ／ 会社情報</div>
+      <div class="en">ABOUT US</div><h1>会社情報</h1>
+    </div></div>
+    <section class="block"><div class="wrap">
+      <div class="eyebrow">MESSAGE</div><h2 class="h2">会社説明</h2>
+      <div class="about-text" id="aboutText"></div>
+    </div></section>
+    <section class="block" style="padding-top:0"><div class="wrap">
+      <div class="eyebrow">OVERVIEW</div><h2 class="h2">会社概要</h2>
+      <table class="table" id="overview"></table>
+    </div></section>
+  </div>
+
+  <!-- ===== TERM ===== -->
+  <div class="page" id="term">
+    <div class="page-head"><div class="wrap">
+      <div class="crumb"><a data-go="home">ホーム</a> ／ 特有単語</div>
+      <div class="en">OUR WORD</div><h1>特有単語</h1>
+    </div></div>
+    <section class="block"><div class="wrap">
+      <div class="term-hero"><div class="term-word" id="termWord"></div><div class="term-reading" id="termReading"></div></div>
+      <div class="term-grid">
+        <div class="term-box"><h4>意味</h4><p id="termMeaning"></p></div>
+        <div class="term-box"><h4>使い方の例</h4><p id="termExample"></p></div>
+      </div>
+    </div></section>
+  </div>
+
+  <!-- ===== OFFICERS ===== -->
+  <div class="page" id="officers">
+    <div class="page-head"><div class="wrap">
+      <div class="crumb"><a data-go="home">ホーム</a> ／ 役員紹介</div>
+      <div class="en">EXECUTIVES</div><h1>役員紹介</h1>
+    </div></div>
+    <section class="block"><div class="wrap">
+      <div class="officers" id="officerList"></div>
+    </div></section>
+  </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div class="f-brand">
+        <div class="logo" data-go="home">
+          <div class="logo-mark"><span data-initial></span></div>
+          <span class="logo-text" data-bind="companyNameEn"></span>
+        </div>
+        <p><span data-bind="companyName"></span><br><span data-bind="catchCopy"></span></p>
+      </div>
+      <div class="f-col">
+        <h4>会社情報</h4>
+        <a data-go="about">会社説明</a>
+        <a data-go="about">会社概要</a>
+      </div>
+      <div class="f-col">
+        <h4>メンバー</h4>
+        <a data-go="officers">役員紹介</a>
+      </div>
+      <div class="f-col">
+        <h4>その他</h4>
+        <a data-go="term">特有単語</a>
+        <a data-go="home">お知らせ</a>
+        <a data-go="home">ホーム</a>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <div>© <span id="year"></span> <span data-bind="companyNameEn"></span> All rights reserved.</div>
+      <a class="to-top" onclick="scrollTo({top:0,behavior:'smooth'})">ページの先頭へ ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- データ反映 ---------- */
+const C = CONFIG;
+document.title = C.companyName;
+document.querySelectorAll("[data-bind]").forEach(el => el.textContent = C[el.dataset.bind] || "");
+document.querySelectorAll("[data-initial]").forEach(el => el.textContent = (C.companyNameEn || "?").charAt(0));
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// お知らせ
+document.getElementById("newsList").innerHTML = (C.news || []).map(n =>
+  `<li><span class="date">${n.date}</span><span class="tag">お知らせ</span><span>${n.text}</span></li>`).join("");
+
+// 会社説明 4行
+document.getElementById("aboutText").innerHTML =
+  [0,1,2,3].map(i => `<div class="line">${(C.about || [])[i] || ""}</div>`).join("");
+
+// 会社概要
+const rows = [["会社名", C.companyName], ["英文社名", C.companyNameEn], ["設立", C.founded]];
+if (C.area) rows.push(["活動エリア", C.area]);
+C.officers.forEach(o => rows.push([o.role, o.name]));
+document.getElementById("overview").innerHTML = rows.map(r => `<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join("");
+
+// 特有単語
+const t = C.term, tw = document.getElementById("termWord");
+if (t.word) tw.textContent = t.word; else { tw.textContent = "COMING SOON"; tw.classList.add("empty"); }
+document.getElementById("termReading").textContent = t.reading;
+const fill = (id, v, ph) => { const e = document.getElementById(id); e.textContent = v || ph; e.classList.toggle("placeholder", !v); };
+fill("termMeaning", t.meaning, "準備中");
+fill("termExample", t.example, "準備中");
+
+// 役員
+const personIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>`;
+document.getElementById("officerList").innerHTML = C.officers.map(o => `
+  <div class="officer rv">
+    <div class="photo">${o.photo ? `<img src="${o.photo}" alt="${o.name}">` : `<div class="ph">${personIcon}<br>PHOTO</div>`}</div>
+    <div class="info">
+      <div class="role">${o.role}／${o.roleEn}</div>
+      <div class="name">${o.name}</div>
+      <div class="name-en">${o.nameEn}</div>
+      <div class="msg ${o.message ? "" : "placeholder"}">${o.message || "メッセージ準備中"}</div>
+    </div>
+  </div>`).join("");
+
+/* ---------- ページ切り替え ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {threshold:.15});
+function go(id){
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("show", p.id === id));
+  document.querySelectorAll(".hnav a").forEach(a => a.classList.toggle("active", a.dataset.go === id));
+  window.scrollTo(0,0);
+  history.replaceState(null, "", "#" + id);
+  document.querySelectorAll("#" + id + " .rv:not(.in)").forEach(el => io.observe(el));
+}
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) go(g.dataset.go); });
+go((location.hash || "#home").slice(1) || "home");
+
+/* ---------- タイピング ---------- */
+(function(){
+  const el = document.getElementById("typing"), s = C.catchCopy; let i = 0;
+  (function step(){ if (i <= s.length){ el.textContent = s.slice(0, i++); setTimeout(step, 110); } })();
+})();
+
+/* ---------- 背景（控えめなパーティクル） ---------- */
+(function(){
+  const c = document.getElementById("bgCanvas"), x = c.getContext("2d"); let W, H, P;
+  function init(){
+    W = c.width = innerWidth; H = c.height = innerHeight;
+    P = Array.from({length: Math.min(60, Math.floor(W*H/22000))}, () => ({x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25}));
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    for (const p of P){ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+      x.fillStyle="rgba(0,229,255,.6)"; x.beginPath(); x.arc(p.x,p.y,1.2,0,7); x.fill(); }
+    for (let i=0;i<P.length;i++) for (let j=i+1;j<P.length;j++){
+      const d = Math.hypot(P[i].x-P[j].x, P[i].y-P[j].y);
+      if (d < 140){ x.strokeStyle=`rgba(0,229,255,${(1-d/140)*.15})`; x.beginPath(); x.moveTo(P[i].x,P[i].y); x.lineTo(P[j].x,P[j].y); x.stroke(); }
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener("resize", init); init(); draw();
+})();
+</script>
+</body>
+</html>
